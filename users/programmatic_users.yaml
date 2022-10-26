@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  SesProgrammaticUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      UserName: !Sub 'ses-programmatic-user'
+      Policies:
+        - PolicyName: 'SesProgrammaticUserPolicy'
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+                Effect: Allow
+                Action: 'ses:SendRawEmail'
+                Resource: '*'
+  SesProgrammaticUserAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref SesProgrammaticUser
+  SesProgrammaticUserAccessKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub ${SesProgrammaticUser}-credentials
+      SecretString: !Sub "{\"accessKeyId\":\"${SesProgrammaticUserAccessKey}\",\"secretAccessKey\":\"${SesProgrammaticUserAccessKey.SecretAccessKey}\"}"
