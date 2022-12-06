@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  SesEmailIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: "example.co.jp"
+
+  SesDNSRecord:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: example.co.jp.
+      RecordSets:
+      - Name: !GetAtt SesEmailIdentity.DkimDNSTokenName1
+        Type: CNAME
+        TTL: '0'
+        ResourceRecords:
+        - !GetAtt SesEmailIdentity.DkimDNSTokenValue1
+      - Name: !GetAtt SesEmailIdentity.DkimDNSTokenName2
+        Type: CNAME
+        TTL: '0'
+        ResourceRecords:
+        - !GetAtt SesEmailIdentity.DkimDNSTokenValue2
+      - Name: !GetAtt SesEmailIdentity.DkimDNSTokenName3
+        Type: CNAME
+        TTL: '0'
+        ResourceRecords:
+        - !GetAtt SesEmailIdentity.DkimDNSTokenValue3

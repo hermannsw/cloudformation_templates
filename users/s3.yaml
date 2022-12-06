@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  S3ProgrammaticUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      UserName: !Sub 's3-programmatic-user'
+      Policies:
+        - PolicyName: 'S3ProgrammaticUserPolicy'
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+                Effect: Allow
+                Action:
+                  - 's3:*'
+                  - 's3-object-lambda:*'
+                Resource: '*'
+  S3ProgrammaticUserAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref S3ProgrammaticUser
+  S3ProgrammaticUserAccessKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub ${S3ProgrammaticUser}-credentials
+      SecretString: !Sub "{\"accessKeyId\":\"${S3ProgrammaticUserAccessKey}\",\"secretAccessKey\":\"${S3ProgrammaticUserAccessKey.SecretAccessKey}\"}"

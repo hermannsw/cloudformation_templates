@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  SesProgrammaticUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      UserName: !Sub 'ses-programmatic-user'
+      Policies:
+        - PolicyName: 'SesProgrammaticUserPolicy'
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+                Effect: Allow
+                Action: 'ses:SendRawEmail'
+                Resource: '*'
+  SesProgrammaticUserAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref SesProgrammaticUser
+  SesProgrammaticUserAccessKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub ${SesProgrammaticUser}-credentials
+      SecretString: !Sub "{\"accessKeyId\":\"${SesProgrammaticUserAccessKey}\",\"secretAccessKey\":\"${SesProgrammaticUserAccessKey.SecretAccessKey}\"}"
+
+  SesEmailIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: "example.co.jp"
+
+  SesDNSRecord:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: example.co.jp.
+      RecordSets:
+      - Name: !GetAtt SesEmailIdentity.DkimDNSTokenName1
+        Type: CNAME
+        TTL: '0'
+        ResourceRecords:
+        - !GetAtt SesEmailIdentity.DkimDNSTokenValue1
+      - Name: !GetAtt SesEmailIdentity.DkimDNSTokenName2
+        Type: CNAME
+        TTL: '0'
+        ResourceRecords:
+        - !GetAtt SesEmailIdentity.DkimDNSTokenValue2
+      - Name: !GetAtt SesEmailIdentity.DkimDNSTokenName3
+        Type: CNAME
+        TTL: '0'
+        ResourceRecords:
+        - !GetAtt SesEmailIdentity.DkimDNSTokenValue3
